@@ -1,0 +1,38 @@
+@startuml
+title User Login Sequence Diagram
+
+actor User as U
+participant "Frontend" as Frontend
+participant "API Gateway" as APIGateway
+participant "Cognito User Pool" as Cognito
+participant "Backend API" as BackendAPI
+participant "PostgreSQL" as PostgreSQL
+
+U -> Frontend: Log in
+
+activate Frontend
+
+Frontend -> APIGateway: Request
+
+activate APIGateway
+
+APIGateway -> Cognito: Authenticate User
+
+activate Cognito
+
+alt User Authenticated
+    Cognito --> APIGateway: Authenticated
+    APIGateway -> BackendAPI: Process Request
+    activate BackendAPI
+    BackendAPI -> PostgreSQL: Save Data
+    BackendAPI --> APIGateway: Data Saved
+    deactivate BackendAPI
+else User Not Authenticated
+    Cognito --> APIGateway: Not Authenticated
+    APIGateway --> U: Unauthorized Request
+    deactivate Cognito
+    deactivate APIGateway
+    deactivate Frontend
+end
+
+@enduml
